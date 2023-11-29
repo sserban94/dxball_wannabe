@@ -7,6 +7,8 @@ from pygame.locals import *
 GAME_WIDTH = 1280
 GAME_HEIGHT = 720
 RESOLUTION = (GAME_WIDTH, GAME_HEIGHT)
+FONT_VALUES = {'font_type': None,
+               'font_size': 36}
 BLOCK_WIDTH = 30  # Adjust this to change the block size
 BLOCK_HEIGHT = 20
 BLOCK_SCALE_SIZE = (BLOCK_WIDTH, BLOCK_HEIGHT)
@@ -18,14 +20,15 @@ BLOCK_EMPTY_SPACE = 5
 BLOCK_EMPTY_SPACE_LIST = [5, 10, 15, 20, 25, 30, 35, 40]
 PLAY_OPTION_POSITION = (GAME_WIDTH / 2, GAME_HEIGHT / 2 - 50)
 QUIT_OPTION_POSITION = (GAME_WIDTH / 2, GAME_HEIGHT / 2 + 50)
+GAME_OVER_POSITION = (GAME_WIDTH / 2, GAME_HEIGHT / 2)
+CONTINUE_POSITION = (GAME_WIDTH / 2, GAME_HEIGHT / 2 + FONT_VALUES['font_size'] * 2)
 DELAY = 100
 INTERVAL = 100
 BACKGROUND_COLOR = (100, 100, 100)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GREY = (128, 128, 128)
-FONT_VALUES = {'font_type': None,
-               'font_size': 36}
+RED = (255, 0, 0)
 GAME_TITLE = "DxBall cu buget redus"
 BALL_FILENAME = 'silver_ball_32px.png'
 BALL_SIZE = 32
@@ -35,7 +38,6 @@ PLATE_HEIGHT = 24
 PLATE_DISTANCE_FROM_BOTTOM = 50
 BALL_SPEED = 12
 DATA_FOLDER_NAME = 'data'
-
 
 
 # Resource Manager Class
@@ -115,9 +117,10 @@ class Plate(pygame.sprite.Sprite):
 
 
 class Ball(pygame.sprite.Sprite):
-    def __init__(self, resource_manager):
+    def __init__(self, game):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = resource_manager.load_image(BALL_FILENAME, -1)
+        self.game = game
+        self.image, self.rect = game.resource_manager.load_image(BALL_FILENAME, -1)
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
         self.speed_x, self.speed_y = BALL_SPEED, -BALL_SPEED
@@ -148,8 +151,8 @@ class Ball(pygame.sprite.Sprite):
         #         pygame.quit()
         # self.rect.move_ip(self.speed_x, self.speed_y)
         if self.rect.bottom > self.area.bottom - PLATE_HEIGHT and not self.is_on_plate_flag:
-            print("Game Over")
-            pygame.quit()
+            self.game.state = GameOverState(self.game)
+            # pygame.quit()
 
         self.rect.move_ip(self.speed_x, self.speed_y)
 
@@ -184,7 +187,7 @@ class GameState:
 class PlayState(GameState):
     def __init__(self, game):
         super().__init__(game)
-        self.ball = Ball(game.resource_manager)
+        self.ball = Ball(game)
         self.plate = Plate(game.resource_manager)
         self.all_sprites = pygame.sprite.Group(self.ball, self.plate)
         self.blocks = self.position_block(game.resource_manager)
@@ -273,6 +276,35 @@ class MenuState(GameState):
         quit_text = self.font.render("Quit", True, quit_color)
         self.game.screen.blit(play_text, self.play_rect)
         self.game.screen.blit(quit_text, self.quit_rect)
+        pygame.display.flip()
+
+
+class GameOverState(GameState):
+    def __init__(self, game):
+        super().__init__(game)
+        self.game_over_font = pygame.font.Font(FONT_VALUES['font_type'], FONT_VALUES['font_size'] * 2)
+        self.game_over_text = self.game_over_font.render("GAME OVER", True, RED)
+        self.game_over_rect = self.game_over_text.get_rect(center=GAME_OVER_POSITION)
+
+        self.continue_font = pygame.font.Font(FONT_VALUES['font_type'], FONT_VALUES['font_size'])
+        self.continue_text = self.continue_font.render("Press any key to continue", True, WHITE)
+        self.continue_rect = self.continue_text.get_rect(center=CONTINUE_POSITION)
+
+    def handle_events(self):
+        pygame.key.set_repeat(DELAY, INTERVAL)
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+            elif event.type == KEYDOWN:
+                self.game.state = MenuState(self.game)
+
+    def update(self):
+        pass
+
+    def render(self):
+        self.game.screen.fill(BLACK)
+        self.game.screen.blit(self.game_over_text, self.game_over_rect)
+        self.game.screen.blit(self.continue_text, self.continue_rect)
         pygame.display.flip()
 
 
