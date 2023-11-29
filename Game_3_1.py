@@ -4,14 +4,20 @@ import random
 import pygame
 from pygame.locals import *
 
-RESOLUTION = (1280, 720)
-BLOCK_SIZE = 20  # Adjust this to change the block size
 GAME_WIDTH = 1280
 GAME_HEIGHT = 720
+RESOLUTION = (GAME_WIDTH, GAME_HEIGHT)
+BLOCK_WIDTH = 30  # Adjust this to change the block size
+BLOCK_HEIGHT = 20
+BLOCK_SCALE_SIZE = (BLOCK_WIDTH, BLOCK_HEIGHT)
 LEFT_MARGIN = 20
-BLOCK_START_HEIGHT = 20
-PLAY_OPTION_POSITION = (360, 200)
-QUIT_OPTION_POSITION = (360, 300)
+BLOCK_DISTANCE_FROM_LATERAL_WALL = BLOCK_WIDTH
+BLOCK_STARTING_DISTANCE_FROM_TOP = 20
+BLOCK_ENDING_DISTANCE_FROM_TOP = 400
+BLOCK_EMPTY_SPACE = 5
+BLOCK_EMPTY_SPACE_LIST = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+PLAY_OPTION_POSITION = (GAME_WIDTH / 2, GAME_HEIGHT / 2 - 50)
+QUIT_OPTION_POSITION = (GAME_WIDTH / 2, GAME_HEIGHT / 2 + 50)
 DELAY = 100
 INTERVAL = 100
 BACKGROUND_COLOR = (100, 100, 100)
@@ -22,14 +28,21 @@ FONT_VALUES = {'font_type': None,
                'font_size': 36}
 GAME_TITLE = "DxBall cu buget redus"
 BALL_FILENAME = 'silver_ball_32px.png'
+BALL_SIZE = 32
 PLATE_FILENAME = 'dxball_bar_120x24.png'
+PLATE_WIDTH = 120
+PLATE_HEIGHT = 24
+PLATE_DISTANCE_FROM_BOTTOM = 50
+BALL_SPEED = 12
+DATA_FOLDER_NAME = 'data'
+
 
 
 # Resource Manager Class
 class ResourceManager:
     def __init__(self):
         self.main_dir = os.path.split(os.path.abspath(__file__))[0]
-        self.data_dir = os.path.join(self.main_dir, 'data')
+        self.data_dir = os.path.join(self.main_dir, DATA_FOLDER_NAME)
 
     def load_image(self, name, color_key=None):
         fullname = os.path.join(self.data_dir, name)
@@ -66,7 +79,7 @@ class Block(pygame.sprite.Sprite):
     def __init__(self, resource_manager, pos_x, pos_y):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = resource_manager.load_image(self.select_random_block_color(), -1)
-        self.image = pygame.transform.scale(self.image, (30, 20))  # Scale the image to 40x40 pixels
+        self.image = pygame.transform.scale(self.image, BLOCK_SCALE_SIZE)  # Scale the image to 40x40 pixels
         self.rect = self.image.get_rect()  # Update the rectangle to match the new image size
         self.rect.topleft = pos_x, pos_y
 
@@ -84,11 +97,11 @@ class Block(pygame.sprite.Sprite):
 class Plate(pygame.sprite.Sprite):
     def __init__(self, resource_manager):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = resource_manager.load_image('dxball_bar_120x24.png', -1)
+        self.image, self.rect = resource_manager.load_image(PLATE_FILENAME, -1)
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
-        self.rect.left = 100
-        self.rect.bottom = 540
+        self.rect.left = GAME_WIDTH / 2 - PLATE_WIDTH / 2
+        self.rect.bottom = GAME_HEIGHT - PLATE_DISTANCE_FROM_BOTTOM
 
     def move_left(self):
         if not self.rect.left - 20 < 0:
@@ -104,12 +117,12 @@ class Plate(pygame.sprite.Sprite):
 class Ball(pygame.sprite.Sprite):
     def __init__(self, resource_manager):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = resource_manager.load_image('silver_ball_32px.png', -1)
+        self.image, self.rect = resource_manager.load_image(BALL_FILENAME, -1)
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
-        self.speed_x, self.speed_y = 12, -12
+        self.speed_x, self.speed_y = BALL_SPEED, -BALL_SPEED
         self.rect.left = 100 + 60
-        self.rect.bottom = self.area.bottom - 24
+        self.rect.bottom = self.area.bottom - PLATE_HEIGHT
         self.is_on_plate_flag = False
 
     def update(self):
@@ -134,7 +147,7 @@ class Ball(pygame.sprite.Sprite):
         #         print("Game Over")
         #         pygame.quit()
         # self.rect.move_ip(self.speed_x, self.speed_y)
-        if self.rect.bottom > self.area.bottom - 24 and not self.is_on_plate_flag:
+        if self.rect.bottom > self.area.bottom - PLATE_HEIGHT and not self.is_on_plate_flag:
             print("Game Over")
             pygame.quit()
 
@@ -178,19 +191,22 @@ class PlayState(GameState):
 
     def position_block(self, resource_manager):
         blocks = pygame.sprite.RenderPlain()
-        block_size = BLOCK_SIZE  # Adjust this to change the block size
+        block_width = BLOCK_WIDTH  # Adjust this to change the block size
+        block_height = BLOCK_HEIGHT
         game_width = GAME_WIDTH
-        game_height = GAME_HEIGHT
-        left_margin = LEFT_MARGIN
-        block_start_height = BLOCK_START_HEIGHT  # Adjust this to change the starting height of the blocks
+        left_margin = BLOCK_DISTANCE_FROM_LATERAL_WALL
+        right_margin = BLOCK_DISTANCE_FROM_LATERAL_WALL
+        block_start_height = BLOCK_ENDING_DISTANCE_FROM_TOP  # Adjust this to change the starting height of the blocks
         x = left_margin
-        while x <= game_width:
-            y = block_start_height
-            while y <= game_height:
+        while x <= game_width - right_margin:
+            y = BLOCK_STARTING_DISTANCE_FROM_TOP
+            while y <= block_start_height:
                 block = Block(resource_manager, x, y)
                 blocks.add(block)
-                y += block_size
-            x += block_size
+                # y += block_height + BLOCK_EMPTY_SPACE
+                y += block_height + BLOCK_EMPTY_SPACE
+            x += block_width + BLOCK_EMPTY_SPACE
+            # x += block_width + BLOCK_EMPTY_SPACE
         return blocks
 
     def handle_events(self):
@@ -248,7 +264,7 @@ class MenuState(GameState):
         pass
 
     def render(self):
-        self.game.screen.fill((0, 0, 0))
+        self.game.screen.fill(BLACK)
         play_color = WHITE if self.selected_option == 0 else GREY
         quit_color = WHITE if self.selected_option == 1 else GREY
         play_text = self.font.render("Play", True, play_color)
