@@ -15,7 +15,7 @@ BLOCK_DISTANCE_FROM_LATERAL_WALL = BLOCK_WIDTH
 BLOCK_STARTING_DISTANCE_FROM_TOP = 20
 BLOCK_ENDING_DISTANCE_FROM_TOP = 400
 BLOCK_EMPTY_SPACE = 5
-BLOCK_EMPTY_SPACE_LIST = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+BLOCK_EMPTY_SPACE_LIST = [5, 10, 15, 20, 25, 30, 35, 40]
 PLAY_OPTION_POSITION = (GAME_WIDTH / 2, GAME_HEIGHT / 2 - 50)
 QUIT_OPTION_POSITION = (GAME_WIDTH / 2, GAME_HEIGHT / 2 + 50)
 DELAY = 100
@@ -202,11 +202,13 @@ class PlayState(GameState):
             y = BLOCK_STARTING_DISTANCE_FROM_TOP
             while y <= block_start_height:
                 block = Block(resource_manager, x, y)
-                blocks.add(block)
-                # y += block_height + BLOCK_EMPTY_SPACE
+                to_be_or_not_to_be = [True, False]
+                if random.choice(to_be_or_not_to_be):
+                    blocks.add(block)
                 y += block_height + BLOCK_EMPTY_SPACE
+                # y += block_height + random.choice(BLOCK_EMPTY_SPACE_LIST)
             x += block_width + BLOCK_EMPTY_SPACE
-            # x += block_width + BLOCK_EMPTY_SPACE
+            # x += block_width + random.choice(BLOCK_EMPTY_SPACE_LIST)
         return blocks
 
     def handle_events(self):
