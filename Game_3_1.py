@@ -39,8 +39,11 @@ PLATE_DISTANCE_FROM_BOTTOM = 50
 BALL_SPEED = 12
 DATA_FOLDER_NAME = 'data'
 
+PLATE_SPEED = 40
 
-# Resource Manager Class
+
+# Resource Manager Class - this loads images and sounds
+# TODO - Could use some refactoring - extract common code from load_image
 class ResourceManager:
     def __init__(self):
         self.main_dir = os.path.split(os.path.abspath(__file__))[0]
@@ -68,10 +71,11 @@ class ResourceManager:
         if not pygame.mixer or not pygame.mixer.get_init():
             return NoneSound()
         fullname = os.path.join(self.data_dir, name)
+        sound = None
         try:
             sound = pygame.mixer.Sound(fullname)
         except pygame.error:
-            print("cannot load sound: %s" % sound)
+            print(f"Sound not loaded: {sound}")
             raise SystemExit()
         return sound
 
@@ -106,13 +110,13 @@ class Plate(pygame.sprite.Sprite):
         self.rect.bottom = GAME_HEIGHT - PLATE_DISTANCE_FROM_BOTTOM
 
     def move_left(self):
-        if not self.rect.left - 20 < 0:
-            newp_os = self.rect.move((-20, 0))
+        if not self.rect.left - PLATE_SPEED < 0:
+            newp_os = self.rect.move((-PLATE_SPEED, 0))
             self.rect = newp_os
 
     def move_right(self):
-        if not self.rect.right + 20 > self.area.right:
-            new_pos = self.rect.move((20, 0))
+        if not self.rect.right + PLATE_SPEED > self.area.right:
+            new_pos = self.rect.move((PLATE_SPEED, 0))
             self.rect = new_pos
 
 
@@ -228,7 +232,8 @@ class PlayState(GameState):
     def update(self):
         self.ball.update()
         self.ball.is_on_plate(self.plate)
-        pygame.sprite.spritecollide(self.ball, self.blocks, True)
+        if pygame.sprite.spritecollide(self.ball, self.blocks, True):
+            self.ball.speed_y *= -1
 
     def render(self):
         self.game.screen.fill(BACKGROUND_COLOR)
@@ -296,6 +301,10 @@ class GameOverState(GameState):
             if event.type == QUIT:
                 pygame.quit()
             elif event.type == KEYDOWN:
+                # added a delay because it was annoying to have a sudden change in the UI
+                pygame.time.delay(500)
+                # needed to clear the event because it was sending Enter to the next State
+                pygame.event.clear()
                 self.game.state = MenuState(self.game)
 
     def update(self):
