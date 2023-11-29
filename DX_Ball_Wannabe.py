@@ -9,7 +9,7 @@ GAME_HEIGHT = 720
 RESOLUTION = (GAME_WIDTH, GAME_HEIGHT)
 FONT_VALUES = {'font_type': None,
                'font_size': 36}
-BLOCK_WIDTH = 30  # Adjust this to change the block size
+BLOCK_WIDTH = 30
 BLOCK_HEIGHT = 20
 BLOCK_SCALE_SIZE = (BLOCK_WIDTH, BLOCK_HEIGHT)
 LEFT_MARGIN = 20
@@ -80,7 +80,7 @@ class ResourceManager:
         return sound
 
 
-# Game Object Classes
+# Game Elements Classes
 class Block(pygame.sprite.Sprite):
     def __init__(self, resource_manager, pos_x, pos_y):
         pygame.sprite.Sprite.__init__(self)
@@ -198,12 +198,12 @@ class PlayState(GameState):
 
     def position_block(self, resource_manager):
         blocks = pygame.sprite.RenderPlain()
-        block_width = BLOCK_WIDTH  # Adjust this to change the block size
+        block_width = BLOCK_WIDTH
         block_height = BLOCK_HEIGHT
         game_width = GAME_WIDTH
         left_margin = BLOCK_DISTANCE_FROM_LATERAL_WALL
         right_margin = BLOCK_DISTANCE_FROM_LATERAL_WALL
-        block_start_height = BLOCK_ENDING_DISTANCE_FROM_TOP  # Adjust this to change the starting height of the blocks
+        block_start_height = BLOCK_ENDING_DISTANCE_FROM_TOP
         x = left_margin
         while x <= game_width - right_margin:
             y = BLOCK_STARTING_DISTANCE_FROM_TOP
