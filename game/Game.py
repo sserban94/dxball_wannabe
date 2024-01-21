@@ -11,6 +11,7 @@ class Game:
         self.screen = pygame.display.set_mode(RESOLUTION)
         pygame.display.set_caption(GAME_TITLE)
         self.resource_manager = ResourceManager()
+        pygame.mixer.init()
         # I will use the same resource manager for loading the icon as well
         self.game_icon = self.resource_manager.load_image(BALL_FILENAME, -1)
         # self.game_icon = pygame.image.load(r"data\silver_ball_32px.png")

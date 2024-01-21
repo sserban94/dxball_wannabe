@@ -2,13 +2,14 @@ import pygame
 from pygame import QUIT, KEYDOWN
 
 from game.states.GameState import GameState
-from game.states.MenuState import MenuState
+# from game.states.MenuState import MenuState
 from game.storage.Storage import FONT_VALUES, RED, GAME_OVER_POSITION, CONTINUE_POSITION, DELAY, INTERVAL, BLACK, WHITE
 
 
 class GameOverState(GameState):
     def __init__(self, game):
         super().__init__(game)
+        # super.music.stop()
         self.game_over_font = pygame.font.Font(FONT_VALUES['font_type'], FONT_VALUES['font_size'] * 2)
         self.game_over_text = self.game_over_font.render("GAME OVER", True, RED)
         self.game_over_rect = self.game_over_text.get_rect(center=GAME_OVER_POSITION)
@@ -18,6 +19,7 @@ class GameOverState(GameState):
         self.continue_rect = self.continue_text.get_rect(center=CONTINUE_POSITION)
 
     def handle_events(self):
+        from game.states.MenuState import MenuState
         pygame.key.set_repeat(DELAY, INTERVAL)
         for event in pygame.event.get():
             if event.type == QUIT:

@@ -9,7 +9,7 @@ from game.elements.Plate import Plate
 from game.states.GameState import GameState
 from game.storage.Storage import BLOCK_WIDTH, BLOCK_HEIGHT, GAME_WIDTH, BLOCK_DISTANCE_FROM_LATERAL_WALL, \
     BLOCK_ENDING_DISTANCE_FROM_TOP, BLOCK_STARTING_DISTANCE_FROM_TOP, BLOCK_EMPTY_SPACE, DELAY, INTERVAL, \
-    BACKGROUND_COLOR
+    BACKGROUND_COLOR, PLAY_STATE_MUSIC_FILENAME
 
 
 class PlayState(GameState):
@@ -19,15 +19,20 @@ class PlayState(GameState):
         self.plate = Plate(game.resource_manager)
         self.all_sprites = pygame.sprite.Group(self.ball, self.plate)
         self.blocks = self.position_block(game.resource_manager)
+        self.score = 0
+        self.font = pygame.font.Font(None, 36)
+        self.block_count = 0
+        # super.music = game.resource_manager.load_sound(PLAY_STATE_MUSIC_FILENAME)
+        # super.music.play(-1)
 
     def position_block(self, resource_manager):
         blocks = pygame.sprite.RenderPlain()
-        block_width = BLOCK_WIDTH  # Adjust this to change the block size
+        block_width = BLOCK_WIDTH  # Here I can change the block size
         block_height = BLOCK_HEIGHT
         game_width = GAME_WIDTH
         left_margin = BLOCK_DISTANCE_FROM_LATERAL_WALL
         right_margin = BLOCK_DISTANCE_FROM_LATERAL_WALL
-        block_start_height = BLOCK_ENDING_DISTANCE_FROM_TOP  # Adjust this to change the starting height of the blocks
+        block_start_height = BLOCK_ENDING_DISTANCE_FROM_TOP  # Here I can change the starting height of the blocks
         x = left_margin
         while x <= game_width - right_margin:
             y = BLOCK_STARTING_DISTANCE_FROM_TOP
@@ -58,9 +63,12 @@ class PlayState(GameState):
         self.ball.is_on_plate(self.plate)
         if pygame.sprite.spritecollide(self.ball, self.blocks, True):
             self.ball.speed_y *= -1
+            self.score += 1
 
     def render(self):
         self.game.screen.fill(BACKGROUND_COLOR)
         self.all_sprites.draw(self.game.screen)
         self.blocks.draw(self.game.screen)
+        score_text = self.font.render(f"Score: {self.score}", True, (255, 255, 255))
+        self.game.screen.blit(score_text, (10, 10))
         pygame.display.flip()
