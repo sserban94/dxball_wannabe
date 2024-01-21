@@ -5,9 +5,9 @@ from game.storage.Storage import PLATE_FILENAME, GAME_WIDTH, PLATE_WIDTH, PLATE_
 
 
 class Plate(pygame.sprite.Sprite):
-    def __init__(self, resource_manager):
+    def __init__(self, game):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = resource_manager.load_image(PLATE_FILENAME, -1)
+        self.image, self.rect = game.resource_manager.load_image(PLATE_FILENAME, -1)
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
         self.rect.left = GAME_WIDTH / 2 - PLATE_WIDTH / 2
