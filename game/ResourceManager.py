@@ -32,13 +32,16 @@ class ResourceManager:
             image.set_colorkey(color_key, RLEACCEL)
         return image, image.get_rect()
 
-    def load_sound(self, name):
+    def load_sound(self, name, folder_name=DATA_FOLDER_NAME):
         class NoneSound:
             def play(self): pass
 
         if not pygame.mixer or not pygame.mixer.get_init():
             return NoneSound()
-        fullname = os.path.join(self.data_dir, name)
+
+        local_data_dir = os.path.join(self.main_dir, folder_name)
+        
+        fullname = os.path.join(local_data_dir, name)
         sound = None
         try:
             sound = pygame.mixer.Sound(fullname)
@@ -46,6 +49,21 @@ class ResourceManager:
             print(f"Sound not loaded: {sound}")
             raise SystemExit()
         return sound
+
+    def load_music(self, name, folder_name=DATA_FOLDER_NAME):
+        class NoneSound:
+            def play(self): pass
+
+        if not pygame.mixer or not pygame.mixer.get_init():
+            return NoneSound()
+
+        local_data_dir = os.path.join(self.main_dir, folder_name)
+
+        fullname = os.path.join(local_data_dir, name)
+        try:
+            pygame.mixer.music.load(fullname)
+        except pygame.error:
+            raise SystemExit()
 
     def load_highscores_data(self, name):
         full_file_path = os.path.join(self.pseudo_db_dir, name)

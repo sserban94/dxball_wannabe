@@ -3,7 +3,12 @@ import pygame
 from game.HighScoreManager import HighScoreManager
 # from game.HighScoreManager import HighScoreManager
 from game.ResourceManager import ResourceManager
+from game.states.GameOverState import GameOverState
+from game.states.GameStateManager import GameStateManager
+from game.states.GameWonState import GameWonState
+from game.states.HighScoreMenuState import HighScoreMenuState
 from game.states.MenuState import MenuState
+from game.states.PlayState import PlayState
 from game.storage.Storage import RESOLUTION, GAME_TITLE, BALL_FILENAME, HIGHSCORES_FILENAME
 
 
@@ -16,7 +21,6 @@ class Game:
         pygame.mixer.init()
         # I will use the same resource manager for loading the icon as well
         self.game_icon = self.resource_manager.load_image(BALL_FILENAME, -1)
-        # self.game_icon = pygame.image.load(r"data\silver_ball_32px.png")
         # Because the resource_manager.load_image returns both the image and a rect I will use index 0
         # TODO - Could use some refactoring for efficiency -
         #  separate method in load_image cuz in this case I don't need a rect
@@ -24,13 +28,21 @@ class Game:
         self.latest_score = {}
         self.clock = pygame.time.Clock()
         self.high_score_manager = HighScoreManager(self)
-        self.state = MenuState(self)
+        # self.state = MenuState(self)
         # self.state = PlayState(self)
+        self.state_manager = GameStateManager(self)
+        self.state_manager.add_state("Menu", MenuState)
+        self.state_manager.add_state("Play", PlayState)
+        self.state_manager.add_state("GameOver", GameOverState)
+        self.state_manager.add_state("GameWon", GameWonState)
+        self.state_manager.add_state("HighScoreMenu", HighScoreMenuState)
+        self.state_manager.change_state("Menu")
+
 
 
     def run(self):
         while True:
             self.clock.tick(60)
-            self.state.handle_events()
-            self.state.update()
-            self.state.render()
+            self.state_manager.handle_events()
+            self.state_manager.update()
+            self.state_manager.render()

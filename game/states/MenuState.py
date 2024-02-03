@@ -11,13 +11,20 @@ from game.storage.Storage import FONT_VALUES, WHITE, PLAY_OPTION_POSITION, QUIT_
 class MenuState(GameState):
     def __init__(self, game):
         super().__init__(game)
-        pygame.event.clear()
+        self.font = None
+        self.selected_option = None
+
+    def enter(self):
         self.font = pygame.font.Font(FONT_VALUES['font_type'], FONT_VALUES['font_size'])
         self.selected_option = 0
+
+    def exit(self):
+        pass
 
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == QUIT:
+                self.game.high_score_manager.save_high_scores()
                 pygame.quit()
             elif event.type == KEYDOWN:
                 if event.key == K_UP:
@@ -29,10 +36,11 @@ class MenuState(GameState):
                     # K_RETURN apparently is the enter key
                 elif event.key == K_RETURN:
                     if self.selected_option == 0:
-                        self.game.state = PlayState(self.game)
+                        self.game.state_manager.change_state("Play")
                     elif self.selected_option == 1:
-                        self.game.state = HighScoreMenuState(self.game)
+                        self.game.state_manager.change_state("HighScoreMenu")
                     elif self.selected_option == 2:
+                        self.game.high_score_manager.save_high_scores()
                         pygame.quit()
 
     def update(self):

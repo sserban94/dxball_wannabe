@@ -27,8 +27,8 @@ class BallController:
         self.ball.rect.move_ip(self.speed_x, self.speed_y)
         return False
 
-    # def
 
+    # TODO - change method name - it's not returning a boolean anymore
     def is_on_plate(self, plate):
         # # this was just reversing the direction of the ball
         # if self.ball.rect.colliderect(plate.rect):
@@ -58,6 +58,7 @@ class BallController:
         #     self.is_on_plate_flag = False
 
         if self.ball.rect.colliderect(plate.rect):
+
             # This calculates the horizontal distance between the center of the ball and plate
             # If it is positive => the ball hit the plate on the right side
             # Else => the ball hit the plate on the left side

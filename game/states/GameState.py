@@ -19,3 +19,11 @@ class GameState(ABC):
     @abstractmethod
     def render(self):
         raise NotImplementedError
+
+    @abstractmethod
+    def enter(self):
+        pass
+
+    @abstractmethod
+    def exit(self):
+        pass
