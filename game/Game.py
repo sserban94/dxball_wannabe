@@ -1,5 +1,6 @@
 import pygame
 
+# from game.HighScoreMenu import HighScoreMenu
 from game.ResourceManager import ResourceManager
 from game.states.MenuState import MenuState
 from game.storage.Storage import RESOLUTION, GAME_TITLE, BALL_FILENAME
@@ -19,13 +20,15 @@ class Game:
         # TODO - Could use some refactoring for efficiency -
         #  separate method in load_image cuz in this case I don't need a rect
         pygame.display.set_icon(self.game_icon[0])
+        # self.high_score_json_data = self.resource_manager.pseudo_db_dir('dxball_wannabe_high_scores')
+        # self.state = HighScoreMenu(self, self.high_score_json_data)
         self.state = MenuState(self)
         # self.state = PlayState(self)
         self.clock = pygame.time.Clock()
 
     def run(self):
         while True:
-            self.clock.tick(20)
+            self.clock.tick(60)
             self.state.handle_events()
             self.state.update()
             self.state.render()

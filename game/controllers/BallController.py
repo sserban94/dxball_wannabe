@@ -1,15 +1,21 @@
-from game.storage.Storage import PLATE_HEIGHT, BALL_SPEED
+import time
+
+from game.storage.Storage import PLATE_HEIGHT, BALL_SPEED, GAME_WIDTH
 
 
 class BallController:
-    def __init__(self, ball, game):
+    def __init__(self, ball, game, ball_speed):
         self.ball = ball
         self.game = game
-        self.speed_x, self.speed_y = BALL_SPEED, -BALL_SPEED
+        self.speed_x, self.speed_y = ball_speed, -ball_speed
         self.is_on_plate_flag = False
 
     def update(self):
-        if self.ball.rect.left < 0 or self.ball.rect.right > self.ball.area.right:
+        if (
+                self.ball.rect.left <= 0
+                or
+                self.ball.rect.right >= GAME_WIDTH
+        ):
             self.speed_x *= -1
 
         if self.ball.rect.top < 0:
@@ -20,6 +26,8 @@ class BallController:
 
         self.ball.rect.move_ip(self.speed_x, self.speed_y)
         return False
+
+    # def
 
     def is_on_plate(self, plate):
         # # this was just reversing the direction of the ball

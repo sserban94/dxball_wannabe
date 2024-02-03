@@ -1,4 +1,7 @@
+import math
 import random
+import time
+from datetime import datetime
 
 import pygame
 from pygame import QUIT, KEYDOWN, K_LEFT, K_a, K_RIGHT, K_d
@@ -13,22 +16,24 @@ from game.states.GameState import GameState
 from game.states.GameWonState import GameWonState
 from game.storage.Storage import BLOCK_WIDTH, BLOCK_HEIGHT, GAME_WIDTH, BLOCK_DISTANCE_FROM_LATERAL_WALL, \
     BLOCK_ENDING_DISTANCE_FROM_TOP, BLOCK_STARTING_DISTANCE_FROM_TOP, BLOCK_EMPTY_SPACE, DELAY, INTERVAL, \
-    BACKGROUND_COLOR, PLAY_STATE_MUSIC_FILENAME
+    BACKGROUND_COLOR, PLAY_STATE_MUSIC_FILENAME, INITIAL_BALL_SPEED, BALL_SPEED
 
 
 class PlayState(GameState):
     def __init__(self, game):
         super().__init__(game)
         self.ball = Ball(self.game)
-        self.ball_controller = BallController(self.ball, self.game)
         self.plate = Plate(self.game)
-        self.plate_controller = PlateController(self.plate, self.game)
         self.all_sprites = pygame.sprite.Group(self.ball, self.plate)
         self.blocks = None
         self.position_block()
         self.score = 0
         self.font = pygame.font.Font(None, 36)
         self.block_count = 0
+        self.start_time = datetime.now()
+        self.elapsed_time_already_checked = False
+        self.ball_controller = BallController(self.ball, self.game, INITIAL_BALL_SPEED)
+        self.plate_controller = PlateController(self.plate, self.game)
         self.music = self.game.resource_manager.load_sound(PLAY_STATE_MUSIC_FILENAME)
         self.music.play(-1)
 
@@ -62,11 +67,18 @@ class PlayState(GameState):
                 pygame.quit()
             elif event.type == KEYDOWN:
                 if event.key == K_LEFT or event.key == K_a:
-                    self.plate.move_left()
+                    self.plate_controller.move_left()
                 elif event.key == K_RIGHT or event.key == K_d:
-                    self.plate.move_right()
+                    self.plate_controller.move_right()
 
     def update(self):
+        # added logic here to wait for 2 seconds before starting
+        if not self.elapsed_time_already_checked:
+            if (datetime.now() - self.start_time).total_seconds() > 2:
+                self.ball_controller.speed_x = BALL_SPEED
+                self.ball_controller.speed_y = -BALL_SPEED
+                self.elapsed_time_already_checked = True
+        # TODO - I should move the logic outside the update method in controller - update should not return anything
         if self.ball_controller.update():
             self.music.stop()
             self.game.state = GameOverState(self.game)

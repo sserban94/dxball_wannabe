@@ -3,7 +3,8 @@ import os
 import pygame
 from pygame.locals import *
 
-from game.storage.Storage import DATA_FOLDER_NAME
+# from game.HighScoreMenu import HighScoreMenu
+from game.storage.Storage import DATA_FOLDER_NAME, PSEUDO_DB_FOLDER_NAME
 
 
 # Resource Manager Class - this loads images and sounds
@@ -12,6 +13,7 @@ class ResourceManager:
     def __init__(self):
         self.main_dir = os.path.split(os.path.abspath(__file__))[0]
         self.data_dir = os.path.join(self.main_dir, DATA_FOLDER_NAME)
+        self.pseudo_db_dir = os.path.join(self.main_dir, PSEUDO_DB_FOLDER_NAME)
 
     def load_image(self, name, color_key=None):
         fullname = os.path.join(self.data_dir, name)
@@ -42,3 +44,8 @@ class ResourceManager:
             print(f"Sound not loaded: {sound}")
             raise SystemExit()
         return sound
+
+    def load_menu(self, name):
+        full_name = os.path.join(self.pseudo_db_dir, name)
+        high_score_menu = HighScoreMenu(full_name)
+        return high_score_menu

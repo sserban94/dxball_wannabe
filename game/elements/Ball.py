@@ -1,18 +1,26 @@
+import random
+
 import pygame
 
 from game.states.GameOverState import GameOverState
-from game.storage.Storage import BALL_FILENAME, BALL_SPEED, PLATE_HEIGHT
+from game.storage.Storage import BALL_FILENAME, PLATE_HEIGHT, GAME_WIDTH, GAME_HEIGHT, PLATE_DISTANCE_FROM_BOTTOM
 
 
 class Ball(pygame.sprite.Sprite):
     def __init__(self, game):
         pygame.sprite.Sprite.__init__(self)
         self.game = game
+        # the image has size 32x32
         self.image, self.rect = game.resource_manager.load_image(BALL_FILENAME, -1)
         screen = pygame.display.get_surface()
+        # screen.get_rect creates a new rect with the size of the image and the coordonates x 0 y 0
         self.area = screen.get_rect()
-        self.rect.left = 100 + 60
-        self.rect.bottom = self.area.bottom - PLATE_HEIGHT
+        # giving the rect - x position of 160
+        # self.rect.left = 100 + 60
+        self.rect.left = random.randint(0, GAME_WIDTH)
+        # giving the rect - y position of
+        self.rect.bottom = GAME_HEIGHT - PLATE_HEIGHT - PLATE_DISTANCE_FROM_BOTTOM
+        print("test")
         # self.speed_x, self.speed_y = BALL_SPEED, -BALL_SPEED
         # self.is_on_plate_flag = False
 
