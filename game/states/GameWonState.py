@@ -1,7 +1,11 @@
+import time
+
 import pygame
 from pygame import KEYDOWN, QUIT
 
+from game.HighScoreManager import HighScoreManager
 from game.states.GameState import GameState
+from game.states.HighScoreMenuState import HighScoreMenuState
 from game.storage.Storage import FONT_VALUES, CONTINUE_POSITION, GAME_WON_POSITION, RED, WHITE, BLACK, DELAY, INTERVAL, \
     GAME_WON_STATE_MUSIC_FILENAME
 
@@ -11,6 +15,7 @@ class GameWonState(GameState):
         super().__init__(game)
         self.music = self.game.resource_manager.load_sound(GAME_WON_STATE_MUSIC_FILENAME)
         self.music.play(-1)
+        self.music.stop()
 
         self.game_over_font = pygame.font.Font(FONT_VALUES['font_type'], FONT_VALUES['font_size'] * 2)
         self.game_over_text = self.game_over_font.render("YOU WON", True, RED)
@@ -20,6 +25,7 @@ class GameWonState(GameState):
         self.continue_text = self.continue_font.render("Press any key to continue", True, WHITE)
         self.continue_rect = self.continue_text.get_rect(center=CONTINUE_POSITION)
     def handle_events(self):
+        # TODO - add score to db
         from game.states.MenuState import MenuState
         pygame.key.set_repeat(DELAY, INTERVAL)
         for event in pygame.event.get():
@@ -27,10 +33,10 @@ class GameWonState(GameState):
                 pygame.quit()
             elif event.type == KEYDOWN:
                 # added a delay because it was annoying to have a sudden change in the UI
-                pygame.time.delay(500)
+                # pygame.time.delay(500)
+                time.sleep(1)
                 # needed to clear the event because it was sending Enter to the next State
                 pygame.event.clear()
-                self.game.state = MenuState(self.game)
 
     def update(self):
         pass

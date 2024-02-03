@@ -51,7 +51,8 @@ class PlayState(GameState):
             y = BLOCK_STARTING_DISTANCE_FROM_TOP
             while y <= block_start_height:
                 block = Block(self.game.resource_manager, x, y)
-                to_be_or_not_to_be = [True, False]
+                # TODO - add multiple false here for less blocks
+                to_be_or_not_to_be = [True]
                 if random.choice(to_be_or_not_to_be):
                     self.blocks.add(block)
                 y += block_height + BLOCK_EMPTY_SPACE
@@ -81,6 +82,14 @@ class PlayState(GameState):
         # TODO - I should move the logic outside the update method in controller - update should not return anything
         if self.ball_controller.update():
             self.music.stop()
+            # TODO - remove this block - only for win
+            # save score and time
+            latest_score = {
+                "time": (datetime.now() - self.start_time).total_seconds(),
+                "blocks": self.score
+            }
+            self.game.high_score_manager.add_score(latest_score)
+            self.game.high_score_manager.save_high_scores()
             self.game.state = GameOverState(self.game)
         self.ball_controller.is_on_plate(self.plate)
 
@@ -91,6 +100,12 @@ class PlayState(GameState):
             self.score += len(collided_sprites)
 
         if len(self.blocks) == 0:
+            # save score and time
+            latest_score = {
+                "time": (datetime.now() - self.start_time).total_seconds(),
+                "blocks": self.score
+            }
+            self.game.high_score_manager.add_score(latest_score)
             self.game.state = GameWonState(self.game)
 
     def render(self):
@@ -99,4 +114,7 @@ class PlayState(GameState):
         self.blocks.draw(self.game.screen)
         score_text = self.font.render(f"Score: {self.score}", True, (255, 255, 255))
         self.game.screen.blit(score_text, (10, 10))
+        elapsed_time_text = self.font.render(f"Time Elapsed: {int((datetime.now() - self.start_time).total_seconds())}", True,
+                                      (255, 255, 255))
+        self.game.screen.blit(elapsed_time_text, (10, 20))
         pygame.display.flip()

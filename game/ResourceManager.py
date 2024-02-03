@@ -1,9 +1,11 @@
+import json
 import os
 
 import pygame
 from pygame.locals import *
 
-# from game.HighScoreMenu import HighScoreMenu
+from game.HighScoreManager import HighScoreManager
+# from game.HighScoreManager import HighScoreManager
 from game.storage.Storage import DATA_FOLDER_NAME, PSEUDO_DB_FOLDER_NAME
 
 
@@ -45,7 +47,22 @@ class ResourceManager:
             raise SystemExit()
         return sound
 
-    def load_menu(self, name):
-        full_name = os.path.join(self.pseudo_db_dir, name)
-        high_score_menu = HighScoreMenu(full_name)
-        return high_score_menu
+    def load_highscores_data(self, name):
+        full_file_path = os.path.join(self.pseudo_db_dir, name)
+        # TODO - check error
+        try:
+            with open(full_file_path, "r") as highscores_file:
+                highscore_data = json.load(highscores_file)
+                return highscore_data
+        except FileNotFoundError:
+            print("High score file not found")
+            return []
+
+    def write_highscores_data(self, name, new_data):
+        full_file_path = os.path.join(self.pseudo_db_dir, name)
+        # TODO - check error
+        try:
+            with open(full_file_path, "w") as highscores_file:
+                json.dump(new_data, highscores_file)
+        except FileNotFoundError:
+            print("High score file not found")

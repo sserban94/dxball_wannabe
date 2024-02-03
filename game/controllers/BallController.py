@@ -12,9 +12,9 @@ class BallController:
 
     def update(self):
         if (
-                self.ball.rect.left <= 0
+                self.ball.rect.left < 0
                 or
-                self.ball.rect.right >= GAME_WIDTH
+                self.ball.rect.right > GAME_WIDTH
         ):
             self.speed_x *= -1
 

@@ -1,3 +1,5 @@
+import time
+
 import pygame
 from pygame import QUIT, KEYDOWN
 
@@ -19,15 +21,17 @@ class GameOverState(GameState):
 
     def handle_events(self):
         from game.states.MenuState import MenuState
-        pygame.key.set_repeat(DELAY, INTERVAL)
+        pygame.key.set_repeat()
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
             elif event.type == KEYDOWN:
                 # added a delay because it was annoying to have a sudden change in the UI
-                pygame.time.delay(500)
+                # pygame.time.delay(500)
+                time.sleep(1)
                 # needed to clear the event because it was sending Enter to the next State
                 pygame.event.clear()
+                print(type(self.game.state))
                 self.game.state = MenuState(self.game)
 
     def update(self):
